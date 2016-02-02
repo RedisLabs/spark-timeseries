@@ -12,6 +12,8 @@ This fork extends [Cloudera's spark-timeseries](https://github.com/cloudera/spar
 * Import tool that loads time series files to Redis - `com.redislabs.provider.util.ImportTimeSeriesData`
 * A test suite that compares execution times of common queries using different caching strategies can be found at `src/main/scala/com/run/Main.scala`
 
+**Note:** The redis extension is only implemented in the Scala library at the moment.
+
 Time series storage in Redis
 ---
 
