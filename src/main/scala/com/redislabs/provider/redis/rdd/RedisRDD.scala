@@ -26,9 +26,8 @@ import org.joda.time.DateTimeZone.UTC
  * partitions are the same as RedisKeysRDD's, partitioned by Redis hash slots.
  *
  * RedisTimeSeriesRDD tries to optimize latency by matching the partitioning of Redis nodes and Spark workers.
- * If a Redis server is located on the same physical machine as a Spark worker, and both the redis cluster and Spark
- * cluster have the same number of slots, Redis access from a Spark worker is more likely to be local,
- * thus reducing latency and increasing throughput.
+ * If a Redis node is located on the same physical machine as a Spark worker, Redis access from a Spark worker
+ * is more likely to be local, thus reducing latency and increasing throughput.
  *
  * RedisTimeSeriesRDD exposes the following methods:
  *
