@@ -21,24 +21,29 @@ import breeze.linalg._
 import org.joda.time.DateTimeZone.UTC
 
 /**
- * It is equal to TimeSeriesRDD, and at the same time make use of Redis' sorted set to build
- * more quickly. It encapsulates all the information needed to generate its elements, its
- * partitions are the same as RedisKeysRDD's partitioned by Redis hash slots, if a Redis
- * node is up on a Spark worker, the related partition(has the same slots as the Redis node)
- * will be more likely to run on that worker.
- * In RedisTimeSeriesRDD, we can use:
- *   filterKeys: which use a regex to filter the cols we are interested in, it is more powerful
- *               than endsWith
- *   filterStartingBefore: filter the cols whose start time is before what we want
- *   filterEndingAfter: filter the cols whose end time is after what we want
- *   slice: build the sliced RedisTimeSeriesRDD
- *   fill: choose a method to fill in the missing timeseries data
- *   mapSeries: use a function to deal with the timeseries data
- * All the above functions make use of the of Redis' sorted set to speed up.
+ * RedisTimeSeriesRDD is an RDD similar to TimeSeriesRDD, that makes use of Redis' sorted sets to accelerate
+ * time-series operations. It encapsulates all the information needed to generate its elements, and its
+ * partitions are the same as RedisKeysRDD's, partitioned by Redis hash slots.
+ *
+ * RedisTimeSeriesRDD tries to optimize latency by matching the partitioning of Redis nodes and Spark workers.
+ * If a Redis server is located on the same physical machine as a Spark worker, and both the redis cluster and Spark
+ * cluster have the same number of slots, Redis access from a Spark worker is more likely to be local,
+ * thus reducing latency and increasing throughput.
+ *
+ * RedisTimeSeriesRDD exposes the following methods:
+ *
+ *   filterKeys: uses regular expressions to filter the columns we are interested in.
+ *   filterStartingBefore: filter the columns whose start time is before a given time.
+ *   filterEndingAfter: filter the columns whose end time is after a given time
+ *   slice: build a sliced RedisTimeSeriesRDD
+ *   fill: choose a method to fill in the missing time-series data
+ *   mapSeries: use a function to deal with the time-series data
+ *
+ * All the above functions make use of of Redis' sorted set to speed up operations.
  *
  * If future transforms are needed, we can just transform RedisTimeSeriesRDD to TimeSeriesRDD
- * by toTimeSeriesRDD and make use of the functions the TimeSeriesRDD already implemented,
- * there is no need to reimplement the functions TimeSeriesRDD already provided.
+ * by calling toTimeSeriesRDD, and make use of the functions that TimeSeriesRDD implements,
+ * without needing to re-implement that functionality in RedisTimeSeriesRDD.
  *
  * @param prev      The RedisKeysRDD
  * @param index     The DateTimeIndex shared by all the time series.
@@ -250,7 +255,7 @@ class RedisKeysRDD(sc: SparkContext,
     extends RDD[String](sc, Seq.empty) with Logging with Keys {
 
   /**
-   * @param split a partition of the RedisKeysRDD
+   * @param split a partition of RedisKeysRDD
    * @return Addresses which are the preferred locations for the partition
    */
   override protected def getPreferredLocations(split: Partition): Seq[String] = {

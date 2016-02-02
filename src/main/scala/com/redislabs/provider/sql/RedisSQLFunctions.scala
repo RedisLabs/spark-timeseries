@@ -7,7 +7,7 @@ import scala.collection.mutable.HashMap
 
 /**
  * RedisSQLContext is used to import and make use of mapSeries function for instant and
- * observation dataframe. It is used by implicit cast SQLContext to RedisSQLContext.
+ * observation dataframe. It works by implicitly casting an SQLContext to RedisSQLContext.
  */
 class RedisSQLContext(val sc: SQLContext) extends Serializable {
   def setMapSeries(funcName: String, mapSeries: (Vector[Double] => Vector[Double])) = {
